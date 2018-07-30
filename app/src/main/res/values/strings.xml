@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">IpTest</string>
+    <string name="all_image">所有图片</string>
 </resources>
