@@ -10,8 +10,10 @@ import android.widget.ArrayAdapter;
 
 import com.example.lilei.iptest.R;
 import com.example.lilei.iptest.holder.ImageHolder;
+import com.example.lilei.iptest.interfaces.OnImageClickedListener;
 import com.example.lilei.iptest.model.Image;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,9 +23,12 @@ import java.util.List;
 public class ImageListAdapter extends RecyclerView.Adapter<ImageHolder> {
 
     private Context context;
+    private List<Image> list;
+    private OnImageClickedListener onImageClickedListener;
 
-    public ImageListAdapter(Context context) {
+    public ImageListAdapter(Context context, List<Image> list) {
         this.context = context;
+        this.list = list;
     }
 
     @Override
@@ -34,12 +39,34 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageHolder> {
     }
 
     @Override
-    public void onBindViewHolder(ImageHolder holder, int position) {
+    public void onBindViewHolder(ImageHolder holder, final int position) {
+        holder.setImageResource(list.get(position));
+        holder.setCheckImg(list.get(position).isChecked);
+        if (onImageClickedListener!=null){
+            holder.defImg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onImageClickedListener.onImageClicked(position);
+                }
+            });
+
+            holder.imgChecked.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    list.get(position).isChecked = !list.get(position).isChecked;
+                    onImageClickedListener.onImageChecked(position);
+                }
+            });
+        }
 
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return list.size();
+    }
+
+    public void setOnImageClickedListener(OnImageClickedListener onImageClickedListener) {
+        this.onImageClickedListener = onImageClickedListener;
     }
 }

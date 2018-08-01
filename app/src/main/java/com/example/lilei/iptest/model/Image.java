@@ -9,7 +9,7 @@ public class Image {
     public String path;
     public String name;
     public long time;
-
+    public boolean isChecked = false;
     public boolean isCamera = false;
 
     public Image(String path, String name, long time) {

@@ -8,12 +8,16 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.lilei.iptest.adapter.ImageListAdapter;
+import com.example.lilei.iptest.interfaces.OnImageClickedListener;
 import com.example.lilei.iptest.model.Folder;
 import com.example.lilei.iptest.model.Image;
 
@@ -34,6 +38,8 @@ public class ImageListFragment extends Fragment {
     private List<Image> imageList = new ArrayList<>();
     private List<Folder> folderList = new ArrayList<>();
 
+    private ImageListAdapter imageListAdapter;
+
     private LoaderManager.LoaderCallbacks<Cursor> mLoaderCallBack;
 
 
@@ -41,16 +47,31 @@ public class ImageListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.view_image_list,container,false);
+        View view = inflater.inflate(R.layout.view_image_list, container, false);
         recyclerView = view.findViewById(R.id.image_recycle);
         textView = view.findViewById(R.id.select_image_resource);
-
         return view;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        imageListAdapter = new ImageListAdapter(getActivity(), imageList);
+        imageListAdapter.setOnImageClickedListener(new OnImageClickedListener() {
+            @Override
+            public void onImageClicked(int position) {
+                Log.e("1234", "onImageClicked:" );
+            }
+
+            @Override
+            public void onImageChecked(int position) {
+                Log.e("1234","checked");
+            }
+        });
+        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 4));
+        recyclerView.setAdapter(imageListAdapter);
+
         mLoaderCallBack = new LoaderManager.LoaderCallbacks<Cursor>() {
 
             private final String[] IMAGE_PROJECTION = {
@@ -61,7 +82,7 @@ public class ImageListFragment extends Fragment {
 
             @Override
             public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-                if (id == LOADER_ALL){
+                if (id == LOADER_ALL) {
                     CursorLoader cursorLoader = new CursorLoader(getActivity(),
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI, IMAGE_PROJECTION,
                             null, null, IMAGE_PROJECTION[2] + " DESC");
@@ -117,10 +138,8 @@ public class ImageListFragment extends Fragment {
                         imageList.clear();
 //                        if (config.needCamera)
 //                            imageList.add(new Image());
-//                        imageList.addAll(tempImageList);
-//
-//
-//                        imageListAdapter.notifyDataSetChanged();
+                        imageList.addAll(tempImageList);
+                        imageListAdapter.notifyDataSetChanged();
 //
 //                        folderListAdapter.notifyDataSetChanged();
 
@@ -134,5 +153,7 @@ public class ImageListFragment extends Fragment {
 
             }
         };
+
+        getActivity().getSupportLoaderManager().initLoader(LOADER_ALL,null,mLoaderCallBack);
     }
 }
