@@ -1,9 +1,13 @@
 package com.example.lilei.iptest.utils;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import java.io.File;
@@ -29,7 +33,6 @@ public class Utils {
         if (filePath == null) {
             return null;
         }
-        Log.e("1234", "ZipBitmap: " + filePath);
         File file = new File(filePath);
         if (!file.exists()) {
             return null;
@@ -56,4 +59,44 @@ public class Utils {
         CacheUtils.getInstance().putBitmap(filePath, realBitMap);
         return realBitMap;
     }
+
+    //获取屏幕宽度
+    public static int getPhoneWidth(Activity activity) {
+        DisplayMetrics dm = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+        return dm.widthPixels;
+    }
+
+    //获取屏幕高度
+    public static int getPhoneHeight(Activity activity){
+        DisplayMetrics dm = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+        return dm.heightPixels;
+    }
+
+    /**
+     * 递归创建文件夹
+     *
+     * @param dirPath
+     * @return 创建失败返回""
+     */
+    public static String createDir(String dirPath) {
+        try {
+            File file = new File(dirPath);
+            if (file.getParentFile().exists()) {
+                Log.i("createDir", "----- 创建文件夹" + file.getAbsolutePath());
+                file.mkdir();
+                return file.getAbsolutePath();
+            } else {
+                createDir(file.getParentFile().getAbsolutePath());
+                Log.i("createDir", "----- 创建文件夹" + file.getAbsolutePath());
+                file.mkdir();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return dirPath;
+    }
+
+
 }

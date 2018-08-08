@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">IpTest</string>
     <string name="all_image">所有图片</string>
+    <string name="image">图片</string>
+    <string name="confirm">确认</string>
+    
+    <string name="has_images">共有图片%1$s张</string>
 </resources>

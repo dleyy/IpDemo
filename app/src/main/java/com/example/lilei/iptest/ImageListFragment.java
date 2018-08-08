@@ -14,12 +14,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.example.lilei.iptest.adapter.ImageListAdapter;
+import com.example.lilei.iptest.config.ImagePickerConfig;
 import com.example.lilei.iptest.interfaces.OnImageClickedListener;
 import com.example.lilei.iptest.model.Folder;
 import com.example.lilei.iptest.model.Image;
+import com.example.lilei.iptest.utils.Utils;
+import com.example.lilei.iptest.widget.GridSpacingItemDecoration;
+import com.example.lilei.iptest.widget.ImagePathPopupWindow;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,16 +35,18 @@ public class ImageListFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private TextView textView;
+    private LinearLayout bottomLine;
 
     private final int LOADER_ALL = 0;
     private final int LOADER_CATEGORY = 1;
     private boolean hasFolderGened = false;
 
-
     private List<Image> imageList = new ArrayList<>();
     private List<Folder> folderList = new ArrayList<>();
 
     private ImageListAdapter imageListAdapter;
+    private ImagePathPopupWindow imagePathPopupWindow;
+    private ImagePickerConfig config;
 
     private LoaderManager.LoaderCallbacks<Cursor> mLoaderCallBack;
 
@@ -50,6 +58,8 @@ public class ImageListFragment extends Fragment {
         View view = inflater.inflate(R.layout.view_image_list, container, false);
         recyclerView = view.findViewById(R.id.image_recycle);
         textView = view.findViewById(R.id.select_image_resource);
+        bottomLine = view.findViewById(R.id.bottom_lin);
+        config = Constant.config;
         return view;
     }
 
@@ -61,15 +71,16 @@ public class ImageListFragment extends Fragment {
         imageListAdapter.setOnImageClickedListener(new OnImageClickedListener() {
             @Override
             public void onImageClicked(int position) {
-                Log.e("1234", "onImageClicked:" );
+                Log.e("1234", "onImageClicked:");
             }
 
             @Override
             public void onImageChecked(int position) {
-                Log.e("1234","checked");
+                Log.e("1234", "checked");
             }
         });
-        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 4));
+        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+        recyclerView.addItemDecoration(new GridSpacingItemDecoration(3, 2, false));
         recyclerView.setAdapter(imageListAdapter);
 
         mLoaderCallBack = new LoaderManager.LoaderCallbacks<Cursor>() {
@@ -136,13 +147,19 @@ public class ImageListFragment extends Fragment {
                         } while (data.moveToNext());
 
                         imageList.clear();
-//                        if (config.needCamera)
-//                            imageList.add(new Image());
+                        if (config.needCamera)
+                            imageList.add(new Image());
                         imageList.addAll(tempImageList);
                         imageListAdapter.notifyDataSetChanged();
 //
 //                        folderListAdapter.notifyDataSetChanged();
+                        imagePathPopupWindow = new ImagePathPopupWindow(getActivity(), bottomLine,
+                                Utils.getPhoneHeight(getActivity()), config, new PopupWindow.OnDismissListener() {
+                            @Override
+                            public void onDismiss() {
 
+                            }
+                        }, folderList);
                         hasFolderGened = true;
                     }
                 }
@@ -154,6 +171,23 @@ public class ImageListFragment extends Fragment {
             }
         };
 
-        getActivity().getSupportLoaderManager().initLoader(LOADER_ALL,null,mLoaderCallBack);
+        getActivity().getSupportLoaderManager().initLoader(LOADER_ALL, null, mLoaderCallBack);
+
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (imagePathPopupWindow != null) {
+                    imagePathPopupWindow.show();
+                }
+            }
+        });
+    }
+
+    public boolean onBackPressed() {
+        if (imagePathPopupWindow.isShowing()) {
+            imagePathPopupWindow.dismiss();
+            return true;
+        }
+        return false;
     }
 }

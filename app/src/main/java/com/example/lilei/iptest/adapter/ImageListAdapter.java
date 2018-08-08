@@ -1,5 +1,6 @@
 package com.example.lilei.iptest.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -22,26 +23,27 @@ import java.util.List;
 
 public class ImageListAdapter extends RecyclerView.Adapter<ImageHolder> {
 
-    private Context context;
+    private Activity activity;
     private List<Image> list;
     private OnImageClickedListener onImageClickedListener;
 
-    public ImageListAdapter(Context context, List<Image> list) {
-        this.context = context;
+    public ImageListAdapter(Activity activity, List<Image> list) {
+        this.activity = activity;
         this.list = list;
     }
 
     @Override
     public ImageHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.view_image_item,
+        View view = LayoutInflater.from(activity).inflate(R.layout.view_image_item,
                 parent, false);
-        return new ImageHolder(view);
+        return new ImageHolder(view,activity);
     }
 
     @Override
     public void onBindViewHolder(ImageHolder holder, final int position) {
         holder.setImageResource(list.get(position));
         holder.setCheckImg(list.get(position).isChecked);
+
         if (onImageClickedListener!=null){
             holder.defImg.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -54,6 +56,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageHolder> {
                 @Override
                 public void onClick(View v) {
                     list.get(position).isChecked = !list.get(position).isChecked;
+                    notifyItemChanged(position);
                     onImageClickedListener.onImageChecked(position);
                 }
             });
