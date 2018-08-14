@@ -2,6 +2,7 @@ package com.example.lilei.iptest.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 import com.example.lilei.iptest.R;
 import com.example.lilei.iptest.config.ImagePickerConfig;
 import com.example.lilei.iptest.holder.FolderHolder;
+import com.example.lilei.iptest.interfaces.OnFolderClickedListener;
 import com.example.lilei.iptest.model.Folder;
 
 import java.util.List;
@@ -23,6 +25,7 @@ public class FolderListAdapter extends RecyclerView.Adapter<FolderHolder> {
     private ImagePickerConfig config;
     private Context context;
     private int currentFolder;
+    private OnFolderClickedListener onFolderClickedListener;
 
     public FolderListAdapter(List<Folder> folders,
                              ImagePickerConfig config,
@@ -44,7 +47,7 @@ public class FolderListAdapter extends RecyclerView.Adapter<FolderHolder> {
 
     @Override
     public void onBindViewHolder(final FolderHolder holder, final int position) {
-        Folder folder = folders.get(position);
+        final Folder folder = folders.get(position);
         holder.folderName.setText(folder.name);
         holder.imageSize.setText(String.format(context.getResources().getString(R.string.has_images)
                 , folder.images.size() + ""));
@@ -59,8 +62,15 @@ public class FolderListAdapter extends RecyclerView.Adapter<FolderHolder> {
                 currentFolder = position;
                 notifyItemChanged(passIndex);
                 holder.checked.setVisibility(View.VISIBLE);
+                if (onFolderClickedListener != null) {
+                    onFolderClickedListener.onFolderClick(position, folders.get(position).images);
+                }
             }
         });
+    }
+
+    public void setOnFolderClickedListener(OnFolderClickedListener onFolderClickedListener) {
+        this.onFolderClickedListener = onFolderClickedListener;
     }
 
     @Override

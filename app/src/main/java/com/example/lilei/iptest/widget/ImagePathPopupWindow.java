@@ -2,11 +2,13 @@ package com.example.lilei.iptest.widget;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +20,9 @@ import android.widget.PopupWindow;
 import com.example.lilei.iptest.R;
 import com.example.lilei.iptest.adapter.FolderListAdapter;
 import com.example.lilei.iptest.config.ImagePickerConfig;
+import com.example.lilei.iptest.interfaces.OnFolderClickedListener;
 import com.example.lilei.iptest.model.Folder;
+import com.example.lilei.iptest.utils.Utils;
 
 import java.util.List;
 
@@ -32,76 +36,50 @@ public class ImagePathPopupWindow {
     private FolderListAdapter adapter;
     private View parentsView;
     private RecyclerView recyclerView;
-    private Context context;
+    private Activity activity;
 
-    private ValueAnimator valueShowAnimator;
-    private ValueAnimator valueDismissAnimator;
-
-    private final int animatorDuration = 300;
-
-    public ImagePathPopupWindow(Context context, View targetView,
+    public ImagePathPopupWindow(Activity activity, View targetView,
                                 int height, ImagePickerConfig config,
                                 PopupWindow.OnDismissListener listener,
                                 List<Folder> folders) {
         parentsView = targetView;
-        this.context = context;
+        this.activity = activity;
+        adapter = new FolderListAdapter(folders, config, activity, 0);
 
-        adapter = new FolderListAdapter(folders, config, context, 0);
-
-        View conventView = LayoutInflater.from(context).inflate(R.layout.view_folder_list,
+        View conventView = LayoutInflater.from(activity).inflate(R.layout.view_folder_list,
                 null);
         recyclerView = conventView.findViewById(R.id.folders);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
         recyclerView.setAdapter(adapter);
         //防止notifyItemChanged闪烁
         ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
 
-        initRecycleAnimator(recyclerView, height * 7 / 10);
-
         popupWindow = new PopupWindow(conventView, LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT, false);
-        popupWindow.setBackgroundDrawable(new ColorDrawable(0x80ff00ff));
+                height * 7 / 10, false);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(0x7DC0C0C0));
         popupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         popupWindow.setTouchable(true);
         popupWindow.setOutsideTouchable(true);
         popupWindow.setOnDismissListener(listener);
         popupWindow.setFocusable(true);
-        popupWindow.setAnimationStyle(R.style.AppTheme);
-
+        popupWindow.setAnimationStyle(R.style.PopupWindowStyle);
     }
 
-    private void initRecycleAnimator(final RecyclerView recyclerView, int height) {
-        valueShowAnimator = ValueAnimator.ofInt(0, height);
-        valueDismissAnimator = ValueAnimator.ofInt(recyclerView.getHeight(), 0);
-        valueShowAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                int height = (int) animation.getAnimatedValue();
-                recyclerView.getLayoutParams().height = height;
-                recyclerView.requestLayout();
-            }
-        });
-        valueDismissAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                int height = (int) animation.getAnimatedValue();
-                recyclerView.getLayoutParams().height = height;
-                recyclerView.requestLayout();
-            }
-        });
+    public void setOnItemClickListener(OnFolderClickedListener listener) {
+        adapter.setOnFolderClickedListener(listener);
     }
 
     public void show() {
-        popupWindow.showAtLocation(parentsView, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL,
-                0, 0);
-        valueShowAnimator.setDuration(animatorDuration);
-        valueShowAnimator.start();
+        if (popupWindow != null) {
+            popupWindow.showAtLocation(parentsView, Gravity.BOTTOM, 0, Utils.dp2px(50, activity));
+        }
     }
 
     public void dismiss() {
-        valueDismissAnimator.setDuration(animatorDuration);
-        valueDismissAnimator.start();
-        //popupWindow.dismiss();
+
+        if (popupWindow.isShowing()) {
+            popupWindow.dismiss();
+        }
     }
 
     public boolean isShowing() {

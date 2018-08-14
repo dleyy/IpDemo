@@ -10,6 +10,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 
 import com.example.lilei.iptest.adapter.ImageListAdapter;
 import com.example.lilei.iptest.config.ImagePickerConfig;
+import com.example.lilei.iptest.interfaces.OnFolderClickedListener;
 import com.example.lilei.iptest.interfaces.OnImageClickedListener;
 import com.example.lilei.iptest.model.Folder;
 import com.example.lilei.iptest.model.Image;
@@ -82,6 +84,7 @@ public class ImageListFragment extends Fragment {
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
         recyclerView.addItemDecoration(new GridSpacingItemDecoration(3, 2, false));
         recyclerView.setAdapter(imageListAdapter);
+        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
 
         mLoaderCallBack = new LoaderManager.LoaderCallbacks<Cursor>() {
 
@@ -120,6 +123,8 @@ public class ImageListFragment extends Fragment {
                             String name = data.getString(data.getColumnIndexOrThrow(IMAGE_PROJECTION[1]));
                             long dateTime = data.getLong(data.getColumnIndexOrThrow(IMAGE_PROJECTION[2]));
                             Image image = new Image(path, name, dateTime);
+
+                            //先添加到图片列表里
                             if (!image.path.endsWith("gif"))
                                 tempImageList.add(image);
                             if (!hasFolderGened) {
@@ -145,21 +150,43 @@ public class ImageListFragment extends Fragment {
                             }
 
                         } while (data.moveToNext());
-
                         imageList.clear();
+                        List<Folder> allFolderList = new ArrayList<>();
+                        Folder allFolder = new Folder();
+                        allFolder.images = new ArrayList<>();
+                        allFolder.images.addAll(tempImageList);
+                        allFolder.path = "-1";
+                        allFolder.name = "所有图片";
+                        allFolderList.add(allFolder);
+                        allFolderList.addAll(folderList);
+
                         if (config.needCamera)
                             imageList.add(new Image());
                         imageList.addAll(tempImageList);
                         imageListAdapter.notifyDataSetChanged();
-//
-//                        folderListAdapter.notifyDataSetChanged();
+
                         imagePathPopupWindow = new ImagePathPopupWindow(getActivity(), bottomLine,
                                 Utils.getPhoneHeight(getActivity()), config, new PopupWindow.OnDismissListener() {
                             @Override
                             public void onDismiss() {
 
                             }
-                        }, folderList);
+                        }, allFolderList);
+                        imagePathPopupWindow.setOnItemClickListener(new OnFolderClickedListener() {
+                            @Override
+                            public void onFolderClick(int position, List<Image> images) {
+                                if (position == 0) {
+                                    imagePathPopupWindow.dismiss();
+                                    getActivity().getSupportLoaderManager().initLoader(LOADER_ALL,
+                                            null, mLoaderCallBack);
+                                } else {
+                                    imageList.clear();
+                                    imageList.addAll(images);
+                                    imageListAdapter.notifyDataSetChanged();
+                                }
+                                imagePathPopupWindow.dismiss();
+                            }
+                        });
                         hasFolderGened = true;
                     }
                 }

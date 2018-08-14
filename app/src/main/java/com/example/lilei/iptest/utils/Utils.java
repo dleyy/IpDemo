@@ -9,6 +9,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
+import android.view.WindowManager;
 
 import java.io.File;
 
@@ -68,7 +70,7 @@ public class Utils {
     }
 
     //获取屏幕高度
-    public static int getPhoneHeight(Activity activity){
+    public static int getPhoneHeight(Activity activity) {
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
         return dm.heightPixels;
@@ -98,5 +100,18 @@ public class Utils {
         return dirPath;
     }
 
+    public static int getPopupMenuHeight(final View authorView) {
+        WindowManager wm = (WindowManager) authorView.getContext()
+                .getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics metrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(metrics);
+        int[] locInWindow = new int[2];
+        authorView.getLocationInWindow(locInWindow);
+        int height = metrics.heightPixels - locInWindow[1] - authorView.getHeight();
+        return height;
+    }
 
+    public static int dp2px(int dp, Activity activity) {
+        return (int) (activity.getResources().getDisplayMetrics().density * dp + 0.5f);
+    }
 }
