@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.bumptech.glide.Glide;
+import com.example.lilei.iptest.Constant;
 import com.example.lilei.iptest.R;
 import com.example.lilei.iptest.model.Image;
 import com.example.lilei.iptest.utils.Utils;
@@ -24,16 +25,14 @@ public class ImageHolder extends RecyclerView.ViewHolder {
     public ImageView defImg;
     public ImageView imgChecked;
     private Activity activity;
-    private View mask;
 
     public ImageHolder(View itemView, Activity activity) {
         super(itemView);
         this.activity = activity;
         defImg = itemView.findViewById(R.id.img);
         imgChecked = itemView.findViewById(R.id.img_selected);
-        mask = itemView.findViewById(R.id.mask);
         ViewGroup.LayoutParams layoutParams = defImg.getLayoutParams();
-        int needSize = (Utils.getPhoneWidth(activity) - 4) / 3;
+        int needSize = (Utils.getPhoneWidth(activity)) / 3;
         layoutParams.width = needSize;
         layoutParams.height = needSize;
         defImg.setLayoutParams(layoutParams);
@@ -43,11 +42,10 @@ public class ImageHolder extends RecyclerView.ViewHolder {
         if (image.path == null) {
             return;
         }
-        Glide.with(activity).load(image.path).asBitmap().into(defImg);
+        Constant.config.loader.loadImage(activity, image.path, defImg);
     }
 
     public void setCheckImg(boolean checked) {
         imgChecked.setBackgroundResource(checked ? R.mipmap.ic_checked : R.mipmap.ic_uncheck);
-
     }
 }

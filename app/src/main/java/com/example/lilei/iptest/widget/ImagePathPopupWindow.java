@@ -37,11 +37,13 @@ public class ImagePathPopupWindow {
     private View parentsView;
     private RecyclerView recyclerView;
     private Activity activity;
+    private View needChangeView;
 
     public ImagePathPopupWindow(Activity activity, View targetView,
                                 int height, ImagePickerConfig config,
                                 PopupWindow.OnDismissListener listener,
-                                List<Folder> folders) {
+                                List<Folder> folders, View view) {
+        this.needChangeView = view;
         parentsView = targetView;
         this.activity = activity;
         adapter = new FolderListAdapter(folders, config, activity, 0);
@@ -63,6 +65,12 @@ public class ImagePathPopupWindow {
         popupWindow.setOnDismissListener(listener);
         popupWindow.setFocusable(true);
         popupWindow.setAnimationStyle(R.style.PopupWindowStyle);
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                needChangeView.setAlpha(1f);
+            }
+        });
     }
 
     public void setOnItemClickListener(OnFolderClickedListener listener) {
@@ -71,12 +79,15 @@ public class ImagePathPopupWindow {
 
     public void show() {
         if (popupWindow != null) {
-            popupWindow.showAtLocation(parentsView, Gravity.BOTTOM, 0, Utils.dp2px(50, activity));
+            //偏移量为View 的高度 + 导航栏的高度
+            popupWindow.showAtLocation(parentsView, Gravity.BOTTOM, 0, Utils.dp2px(50, activity)
+                    + Utils.getNavigatorBarHeight(activity));
+            needChangeView.setAlpha(0.3f);
         }
     }
 
     public void dismiss() {
-
+        needChangeView.setAlpha(1f);
         if (popupWindow.isShowing()) {
             popupWindow.dismiss();
         }

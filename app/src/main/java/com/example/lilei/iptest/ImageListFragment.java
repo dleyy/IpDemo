@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
@@ -18,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.lilei.iptest.adapter.ImageListAdapter;
 import com.example.lilei.iptest.config.ImagePickerConfig;
@@ -26,6 +28,7 @@ import com.example.lilei.iptest.interfaces.OnImageClickedListener;
 import com.example.lilei.iptest.model.Folder;
 import com.example.lilei.iptest.model.Image;
 import com.example.lilei.iptest.utils.Utils;
+import com.example.lilei.iptest.widget.DividerGridItemDecoration;
 import com.example.lilei.iptest.widget.GridSpacingItemDecoration;
 import com.example.lilei.iptest.widget.ImagePathPopupWindow;
 
@@ -73,16 +76,29 @@ public class ImageListFragment extends Fragment {
         imageListAdapter.setOnImageClickedListener(new OnImageClickedListener() {
             @Override
             public void onImageClicked(int position) {
-                Log.e("1234", "onImageClicked:");
+                ((OnImageClickedListener) getActivity()).onImageClicked(position);
             }
 
             @Override
             public void onImageChecked(int position) {
-                Log.e("1234", "checked");
+                if (Constant.selectedImg.size() == config.maxNum) {
+                    Toast.makeText(getActivity(), "最多可选" + config.maxNum + "张",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Image im = imageListAdapter.getAllData().get(position);
+                im.isChecked = !im.isChecked;
+                imageListAdapter.notifyItemChanged(position,0);
+                if (im.isChecked) {
+                    Constant.selectedImg.add(im);
+                } else {
+                    Constant.selectedImg.remove(im);
+                }
+                ((OnImageClickedListener) getActivity()).onImageChecked(position);
             }
         });
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
-        recyclerView.addItemDecoration(new GridSpacingItemDecoration(3, 2, false));
+        recyclerView.addItemDecoration(new DividerGridItemDecoration(recyclerView.getContext()));
         recyclerView.setAdapter(imageListAdapter);
         ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
 
@@ -159,6 +175,14 @@ public class ImageListFragment extends Fragment {
                         allFolder.name = "所有图片";
                         allFolderList.add(allFolder);
                         allFolderList.addAll(folderList);
+                        if (Constant.selectedImg.size() > 0) {
+                            for (Image image : Constant.selectedImg) {
+                                if (tempImageList.contains(image)) {
+                                    tempImageList.get(tempImageList.indexOf(image)).isChecked
+                                            = true;
+                                }
+                            }
+                        }
 
                         if (config.needCamera)
                             imageList.add(new Image());
@@ -171,7 +195,7 @@ public class ImageListFragment extends Fragment {
                             public void onDismiss() {
 
                             }
-                        }, allFolderList);
+                        }, allFolderList, recyclerView);
                         imagePathPopupWindow.setOnItemClickListener(new OnFolderClickedListener() {
                             @Override
                             public void onFolderClick(int position, List<Image> images) {
@@ -204,7 +228,11 @@ public class ImageListFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (imagePathPopupWindow != null) {
-                    imagePathPopupWindow.show();
+                    if (!imagePathPopupWindow.isShowing()) {
+                        imagePathPopupWindow.show();
+                    } else {
+                        imagePathPopupWindow.dismiss();
+                    }
                 }
             }
         });

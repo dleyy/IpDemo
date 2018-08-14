@@ -35,31 +35,42 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageHolder> {
     @Override
     public ImageHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(activity).inflate(R.layout.view_image_item,
-                parent, false);
-        return new ImageHolder(view,activity);
+                null, false);
+        return new ImageHolder(view, activity);
     }
 
     @Override
-    public void onBindViewHolder(ImageHolder holder, final int position) {
-        holder.setImageResource(list.get(position));
-        holder.setCheckImg(list.get(position).isChecked);
+    public void onBindViewHolder(final ImageHolder holder, final int position) {
 
-        if (onImageClickedListener!=null){
-            holder.defImg.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onImageClickedListener.onImageClicked(position);
-                }
-            });
+    }
 
-            holder.imgChecked.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    list.get(position).isChecked = !list.get(position).isChecked;
-                    notifyItemChanged(position);
-                    onImageClickedListener.onImageChecked(position);
-                }
-            });
+    @Override
+    public void onBindViewHolder(ImageHolder holder, final int position, List<Object> payloads) {
+        if (payloads.isEmpty()) {
+            holder.setImageResource(list.get(position));
+            holder.setCheckImg(list.get(position).isChecked);
+
+            if (onImageClickedListener != null) {
+                holder.defImg.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onImageClickedListener.onImageClicked(position);
+                    }
+                });
+
+                holder.imgChecked.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onImageClickedListener.onImageChecked(position);
+                    }
+                });
+            }
+        } else {
+            int type = (int) payloads.get(0);
+            switch (type) {
+                case 0:
+                    holder.setCheckImg(list.get(position).isChecked);
+            }
         }
 
     }
@@ -71,5 +82,9 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageHolder> {
 
     public void setOnImageClickedListener(OnImageClickedListener onImageClickedListener) {
         this.onImageClickedListener = onImageClickedListener;
+    }
+
+    public List<Image> getAllData() {
+        return list;
     }
 }

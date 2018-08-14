@@ -114,4 +114,16 @@ public class Utils {
     public static int dp2px(int dp, Activity activity) {
         return (int) (activity.getResources().getDisplayMetrics().density * dp + 0.5f);
     }
+
+    //获取导航栏高度
+    public static int getNavigatorBarHeight(Context context) {
+        int result = 0;
+        int resourceId=0;
+        int rid = context.getResources().getIdentifier("config_showNavigationBar", "bool", "android");
+        if (rid!=0){
+            resourceId = context.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+            return context.getResources().getDimensionPixelSize(resourceId);
+        }else
+            return 0;
+    }
 }

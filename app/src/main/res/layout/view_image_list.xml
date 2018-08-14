@@ -8,10 +8,7 @@
         android:id="@+id/image_recycle"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
-
-    </android.support.v7.widget.RecyclerView>
-
+        android:layout_weight="1" />
 
     <LinearLayout
         android:id="@+id/bottom_lin"
@@ -23,11 +20,11 @@
         <TextView
             android:id="@+id/select_image_resource"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:layout_marginLeft="15dp"
             android:drawablePadding="5dp"
             android:drawableRight="@mipmap/ic_album"
-            android:gravity="center"
             android:text="@string/all_image"
             android:textColor="@android:color/white"
             android:textSize="18sp" />
