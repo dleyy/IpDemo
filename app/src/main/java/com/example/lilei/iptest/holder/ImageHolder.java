@@ -39,10 +39,12 @@ public class ImageHolder extends RecyclerView.ViewHolder {
     }
 
     public void setImageResource(Image image) {
-        if (image.path == null) {
-            return;
+        if (image.isCamera) {
+            defImg.setImageResource(R.mipmap.photo);
+            imgChecked.setVisibility(View.GONE);
+        } else {
+            Constant.config.loader.loadImage(activity, image.path, defImg);
         }
-        Constant.config.loader.loadImage(activity, image.path, defImg);
     }
 
     public void setCheckImg(boolean checked) {

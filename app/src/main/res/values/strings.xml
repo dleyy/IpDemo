@@ -3,7 +3,8 @@
     <string name="all_image">所有图片</string>
     <string name="image">图片</string>
     <string name="confirm">确认</string>
-    
+
     <string name="has_images">共有图片%1$s张</string>
     <string name="sure_btn_text">完成(%1$d/%2$d)</string>
+    <string name="need_camera_permission">请打开相机权限</string>
 </resources>

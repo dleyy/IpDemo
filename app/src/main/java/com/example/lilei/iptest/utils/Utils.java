@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
@@ -76,6 +77,10 @@ public class Utils {
         return dm.heightPixels;
     }
 
+    public static boolean isSdCardAvailable() {
+        return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
+    }
+
     /**
      * 递归创建文件夹
      *
@@ -98,6 +103,46 @@ public class Utils {
             e.printStackTrace();
         }
         return dirPath;
+    }
+
+    /**
+     * 递归创建文件夹
+     *
+     * @param file
+     * @return 创建失败返回""
+     */
+    public static String createFile(File file) {
+        try {
+            if (file.getParentFile().exists()) {
+                Log.i("createFile","----- 创建文件" + file.getAbsolutePath());
+                file.createNewFile();
+                return file.getAbsolutePath();
+            } else {
+                createDir(file.getParentFile().getAbsolutePath());
+                file.createNewFile();
+                Log.i("createFile","----- 创建文件" + file.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    /**
+     * 创建根缓存目录
+     *
+     * @return
+     */
+    public static String createRootPath(Context context) {
+        String cacheRootPath = "";
+        if (isSdCardAvailable()) {
+            // /sdcard/Android/data/<application package>/cache
+            cacheRootPath = context.getExternalCacheDir().getPath();
+        } else {
+            // /data/data/<application package>/cache
+            cacheRootPath = context.getCacheDir().getPath();
+        }
+        return cacheRootPath;
     }
 
     public static int getPopupMenuHeight(final View authorView) {

@@ -1,11 +1,16 @@
 package com.example.lilei.iptest;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.DividerItemDecoration;
@@ -75,8 +80,9 @@ public class ImageListFragment extends Fragment {
         imageListAdapter = new ImageListAdapter(getActivity(), imageList);
         imageListAdapter.setOnImageClickedListener(new OnImageClickedListener() {
             @Override
-            public void onImageClicked(int position) {
-                ((OnImageClickedListener) getActivity()).onImageClicked(position);
+            public void onImageClicked(int position, Image image) {
+                ((OnImageClickedListener) getActivity()).onImageClicked(position,
+                        image);
             }
 
             @Override
@@ -88,7 +94,7 @@ public class ImageListFragment extends Fragment {
                 }
                 Image im = imageListAdapter.getAllData().get(position);
                 im.isChecked = !im.isChecked;
-                imageListAdapter.notifyItemChanged(position,0);
+                imageListAdapter.notifyItemChanged(position, 0);
                 if (im.isChecked) {
                     Constant.selectedImg.add(im);
                 } else {
@@ -245,4 +251,5 @@ public class ImageListFragment extends Fragment {
         }
         return false;
     }
+
 }

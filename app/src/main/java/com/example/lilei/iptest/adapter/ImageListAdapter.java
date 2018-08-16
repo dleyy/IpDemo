@@ -41,30 +41,30 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageHolder> {
 
     @Override
     public void onBindViewHolder(final ImageHolder holder, final int position) {
+        holder.setImageResource(list.get(position));
+        holder.setCheckImg(list.get(position).isChecked);
 
+        if (onImageClickedListener != null) {
+            holder.defImg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onImageClickedListener.onImageClicked(position,getAllData().get(position));
+                }
+            });
+
+            holder.imgChecked.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onImageClickedListener.onImageChecked(position);
+                }
+            });
+        }
     }
 
     @Override
     public void onBindViewHolder(ImageHolder holder, final int position, List<Object> payloads) {
         if (payloads.isEmpty()) {
-            holder.setImageResource(list.get(position));
-            holder.setCheckImg(list.get(position).isChecked);
-
-            if (onImageClickedListener != null) {
-                holder.defImg.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onImageClickedListener.onImageClicked(position);
-                    }
-                });
-
-                holder.imgChecked.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onImageClickedListener.onImageChecked(position);
-                    }
-                });
-            }
+            this.onBindViewHolder(holder,position);
         } else {
             int type = (int) payloads.get(0);
             switch (type) {

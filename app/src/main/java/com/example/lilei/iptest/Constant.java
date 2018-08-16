@@ -17,4 +17,5 @@ public class Constant {
     public static ImagePickerConfig config;
 
     public static List<Image> selectedImg = new ArrayList<>();
+
 }
