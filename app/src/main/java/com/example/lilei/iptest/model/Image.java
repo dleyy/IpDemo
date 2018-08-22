@@ -1,5 +1,9 @@
 package com.example.lilei.iptest.model;
 
+import android.os.Parcelable;
+
+import java.io.Serializable;
+
 /**
  * Created by lilei on 2018/7/31.
  */

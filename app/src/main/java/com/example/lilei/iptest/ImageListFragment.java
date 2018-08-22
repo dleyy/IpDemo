@@ -34,7 +34,6 @@ import com.example.lilei.iptest.model.Folder;
 import com.example.lilei.iptest.model.Image;
 import com.example.lilei.iptest.utils.Utils;
 import com.example.lilei.iptest.widget.DividerGridItemDecoration;
-import com.example.lilei.iptest.widget.GridSpacingItemDecoration;
 import com.example.lilei.iptest.widget.ImagePathPopupWindow;
 
 import java.io.File;

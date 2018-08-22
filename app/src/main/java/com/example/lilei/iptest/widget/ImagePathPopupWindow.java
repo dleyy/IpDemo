@@ -81,7 +81,7 @@ public class ImagePathPopupWindow {
         if (popupWindow != null) {
             //偏移量为View 的高度 + 导航栏的高度
             popupWindow.showAtLocation(parentsView, Gravity.BOTTOM, 0, Utils.dp2px(50, activity)
-                    + Utils.getNavigatorBarHeight(activity));
+                    + (Utils.isNavigationBarShow(activity) ? Utils.getNavigatorBarHeight(activity) : 0));
             needChangeView.setAlpha(0.3f);
         }
     }

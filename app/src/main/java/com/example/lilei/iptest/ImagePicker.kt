@@ -7,25 +7,23 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat
+import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.widget.Toast
-import com.bumptech.glide.Glide
 import com.example.lilei.iptest.config.ImagePickerConfig
-import com.example.lilei.iptest.interfaces.ImageLoader
 import com.example.lilei.iptest.interfaces.OnImageClickedListener
 import com.example.lilei.iptest.model.Image
 import com.example.lilei.iptest.utils.Utils
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.image_picker.*
 import java.io.File
 
-class MainActivity : AppCompatActivity(), OnImageClickedListener {
+class ImagePicker : AppCompatActivity(), OnImageClickedListener {
 
     private val imageListFragment by lazy { ImageListFragment() }
     private val STORAGE_REQUEST_CODE = 1
@@ -34,15 +32,14 @@ class MainActivity : AppCompatActivity(), OnImageClickedListener {
     private val REQUEST_CAMERA = 4;
     private var cropImagePath = ""
     private var cameraFile = File("")
+    private val RESULT_IMAGES = "result_images"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.image_picker)
 
         initViews()
-
-        initConfigs()
 
         val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
@@ -58,12 +55,20 @@ class MainActivity : AppCompatActivity(), OnImageClickedListener {
         }
     }
 
-    //创建config
-    private fun initConfigs() {
-        var configBuilder = ImagePickerConfig.Builder(this, ImageLoader
-        { context, imagePath, imageView -> Glide.with(context).load(imagePath).asBitmap().into(imageView) })
-        configBuilder.needCamera(true)
-        Constant.config = configBuilder.build()
+    companion object {
+        fun startActivity(config: ImagePickerConfig, activity: AppCompatActivity, resultCode: Int) {
+            Constant.config = config
+            var intent = Intent()
+            intent.setClass(activity, ImagePicker::class.java)
+            activity.startActivityForResult(intent, resultCode)
+        }
+
+        fun startActivity(config: ImagePickerConfig, fragment: Fragment, resultCode: Int) {
+            Constant.config = config
+            var intent = Intent()
+            intent.setClass(fragment.activity, ImagePicker::class.java)
+            fragment.startActivityForResult(intent, resultCode)
+        }
     }
 
     private fun initViews() {
@@ -132,6 +137,18 @@ class MainActivity : AppCompatActivity(), OnImageClickedListener {
 
     private fun showBigImages(imagePath: String) {
 
+    }
+
+    //结束时返回imgList
+    private fun exit() {
+        var intent = Intent()
+        var resultList = ArrayList<String>(Constant.selectedImg.size)
+        Constant.selectedImg.mapTo(resultList) { it ->
+            it.path
+        }
+        intent.putStringArrayListExtra(RESULT_IMAGES, resultList)
+        setResult(Activity.RESULT_OK, intent)
+        finish()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
